@@ -1,0 +1,6 @@
+Revision history for PulseAudio
+
+0.01    12-24-2012
+				Initial release, includes tests, most commands provided by `pacmd` and
+				base object types.
+
