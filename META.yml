@@ -1,5 +1,5 @@
 ---
-abstract: 'The great new PulseAudio!'
+abstract: 'An object oriented interface to pacmd.'
 author:
   - 'Evan Carroll.'
   - 'Evan Carroll <me@evancarroll.com>'
@@ -31,4 +31,4 @@ resources:
   homepage: https://github.com/EvanCarroll/perl-pulseaudio
   license: http://dev.perl.org/licenses/
   repository: git://github.com/EvanCarroll/perl-pulseaudio.git
-version: 0.01
+version: 0.02

@@ -34,6 +34,15 @@ my %pacmd = (
 		set-log-backtrace
 		dump
 		dump-volumes
+
+		get_sample_by
+		get_sink_by
+		get_module_by
+		get_source_output_by
+		get_sink_input_by
+		get_card_by
+		get_client_by
+		get_sample_by
 	/]
 	, 'PulseAudio::Sink' => [qw/
 		exec

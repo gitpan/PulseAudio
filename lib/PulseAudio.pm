@@ -13,7 +13,7 @@ has 'pulse_server' => (
 	, required => 0
 );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 __PACKAGE__->meta->make_immutable;
 
@@ -22,11 +22,7 @@ __END__
 
 =head1 NAME
 
-PulseAudio - The great new PulseAudio!
-
-=head1 VERSION
-
-Version 0.01_01
+PulseAudio - An object oriented interface to pacmd.
 
 =head1 DESCRIPTION
 
@@ -45,7 +41,12 @@ This module provides an object oriented interface into the Pulse configuration L
 
 	## We because the absolute location of the key is {properties}{device.bus_path}
 	my $sink = $pa->get_sinks_by( ['properties', 'device.bus_path'], 'pci-0000:00:1b.0' )
-
+  $sink = $pa->get_sink_by_index(5);
+  
+  $sink = $pa->get_sink_by([qw/properties device.bus_path/], q[pci-0000:00:1b.0] );
+  
+  $sink->set_sink_volume('50%');
+  
 	# Execute VLC with the B<PULSE_SINK> environmental variable set the sink's index.
 	$sink->exec( vlc );
 
@@ -53,7 +54,65 @@ This module provides an object oriented interface into the Pulse configuration L
 	$sink->set_sink_volume( 0x10000 ); # Sets volume to max;
 	$sink->set_sink_volume( 'MAX' ); # Sets volume to max;
 
+=head1 METHODS
+
+The get_by methods take an array ref and a value and return the first object. The array-ref corresponds to the depth and location of the value to check against. See the L<SYNOPSIS> for an example.
+
+=over 4
+
+=item get_card_by( $arrayRef, $value )
+
+=item get_sink_by( $arrayRef, $value )
+
+=item get_source_by( $arrayRef, $value )
+
+=item get_source_output_by( $arrayRef, $value )
+
+=item get_sink_input_by( $arrayRef, $value )
+
+=item get_sample_by( $arrayRef, $value )
+
+=item get_client_by( $arrayRef, $value )
+
+=item get_module_by( $arrayRef, $value )
+
+=back
+
+Retreiver the default.
+
+=over 4
+
+=item get_default_sink()
+
+=item get_default_source()
+
+=back
+
+Return the specific requested object by unique id (index or name in the case of Samples).
+
+=over 4
+
+=item get_card_by_index( $idx )
+
+=item get_sink_by_index( $idx )
+
+=item get_source_by_index( $idx )
+
+=item get_source_output_by_index( $idx )
+
+=item get_sink_input_by_index( $idx )
+
+=item get_sample_by_name( $name )
+
+=item get_client_by_index( $idx )
+
+=item get_module_by_index( $idx )
+
+=back
+
 =head1 SEE ALSO
+
+B<DO READ>: L<Commands> (pod/Commands.pod)
 
 =over 4
 
@@ -63,8 +122,19 @@ This module provides an object oriented interface into the Pulse configuration L
 
 =item L<PulseAudio::Source>
 
-=back
+=item L<PulseAudio::SinkInput>
 
+=item L<PulseAudio::SourceOutput>
+
+=item L<PulseAudio::Module>
+
+=item L<PulseAudio::Sample>
+
+=item L<PulseAudio::Client>
+
+=item L<PulseAudio::Card>
+
+=back
 
 =head1 SUPPORT
 
@@ -94,9 +164,6 @@ L<http://cpanratings.perl.org/d/PulseAudio>
 L<http://search.cpan.org/dist/PulseAudio/>
 
 =back
-
-
-=head1 ACKNOWLEDGEMENTS
 
 
 =head1 LICENSE AND COPYRIGHT

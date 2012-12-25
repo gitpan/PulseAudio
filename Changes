@@ -1,5 +1,8 @@
 Revision history for PulseAudio
 
+0.02    12-25-2012
+        Updated pod, fixed the get_$name_by() to auto-generate, more tests.
+
 0.01    12-24-2012
 				Initial release, includes tests, most commands provided by `pacmd` and
 				base object types.

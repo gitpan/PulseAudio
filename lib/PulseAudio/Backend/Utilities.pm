@@ -16,7 +16,7 @@ foreach my $name ( qw/card source source_output sink sink_input module client/ )
 	my $attr = $name . 's';
 	my $module = 'PulseAudio::' . ucfirst( lc $name );
 	
-	has ( $name.'s', (
+	has ( $attr, (
 		isa       => 'HashRef'
 		, is      => 'ro'
 		, lazy    => 1
@@ -31,24 +31,31 @@ foreach my $name ( qw/card source source_output sink sink_input module client/ )
 			\%db;
 		}
 	) );
+
+	__generate_get_by_method($name, $attr);
 }
 
-## These are stupid, they're primarily indexed by name.
-has 'samples' => (
-	isa       => 'HashRef'
-	, is      => 'ro'
-	, lazy    => 1
-	, traits  => ['Hash']
-	, handles  => { 'get_sample_by_name' => 'get' }
-	, default => sub {
-		my $self = shift;
-		my %db;
-		while ( my ($idx, $data) = each %{$self->get_raw('cache_entrie')} ) {
-			$db{$idx} = PulseAudio::Sample->new({ name => $idx, dump => $data });
+## This is stupid. Sample is referred to as 'cache entrie(s)' in 'pacmd info'
+## Also uses name and not index
+{
+	has 'samples' => (
+		isa       => 'HashRef'
+		, is      => 'ro'
+		, lazy    => 1
+		, traits  => ['Hash']
+		, handles  => { 'get_sample_by_name' => 'get' }
+		, default => sub {
+			my $self = shift;
+			my %db;
+			while ( my ($idx, $data) = each %{$self->get_raw('cache_entrie')} ) {
+				$db{$idx} = PulseAudio::Sample->new({ name => $idx, dump => $data });
+			}
+			\%db;
 		}
-		\%db;
-	}
-);;
+	);
+
+	__generate_get_by_method( 'sample', 'samples' );
+}
 
 has 'defaults' => (
 	isa       => 'HashRef'
@@ -308,35 +315,6 @@ sub get_default_source {
 	$self->defaults->{source};
 }
 
-sub get_sink_by {
-	my ( $self, $loc, $value ) = @_;
-	foreach my $sink ( values %{$self->sinks} ) {
-		my $v;
-		$v = $sink->_dump;
-		$v = $v->{$_} for @$loc;
-		return $sink if $v ~~ $value;
-	}
-	Carp::croak sprintf(
-		"No sink found matching query '%s' for '%s'\n"
-		, (join '/', @$loc)
-		, $value
-	);
-}
-
-sub get_source_by {
-	my ( $self, $loc, $value ) = @_;
-	foreach my $source ( values %{$self->sources} ) {
-		my $v;
-		$v = $source->_dump;
-		$v = $v->{$_} for @$loc;
-		return $source if $v ~~ $value;
-	}
-	Carp::croak sprintf(
-		"No source found matching query '%s' for '%s'\n"
-		, (join '/', @$loc)
-		, $value
-	);
-}
 
 sub _exec {
 	say "EXEC: @_" if $ENV{DEBUG};
@@ -411,6 +389,29 @@ sub _commands {
 	]
 }
 
+sub __generate_get_by_method {
+	my ($name, $attr) = @_;
+
+	__PACKAGE__->meta->add_method(
+		sprintf( 'get_%s_by', $name )
+		, sub {
+			my ( $self, $loc, $value ) = @_;
+			foreach my $obj ( values %{$self->$attr} ) {
+				my $v;
+				$v = $obj->_dump;
+				$v = $v->{$_} for @$loc;
+				return $obj if $v ~~ $value;
+			}
+			Carp::croak sprintf(
+				"No source found matching query '%s' for '%s'\n"
+				, (join '/', @$loc)
+				, $value
+			);
+		}
+	);
+
+}
+
 use PulseAudio::Card;
 use PulseAudio::Client;
 use PulseAudio::Sink;
@@ -426,55 +427,27 @@ __END__
 
 =head1 NAME
 
-PulseAudio::Backend::Utilities - The backend module for the pacmd
-
-=head1 SYNOPSIS
-
-    $pa = PulseAudio->new;
-    
-    $sink = $pa->get_sink_by_index(5);
-    
-    $sink = $pa->get_sink_by([qw/properties device.bus_path/], q[pci-0000:00:1b.0] );
-    
-    $sink->set_sink_volume('50%');
-    
-    $sink->exec(vlc); # sets up PULSE_SINK
+PulseAudio::Backend::Utilities - A backend module for the PulseAudio
 
 =head1 DESCRIPTION
 
-This module serves to provide all the functionality of the backend utilities.
-
-=head1 Methods
+This module serves to provide the functionality of the backend utilities. It has two parsers.
 
 =over 4
 
-=item get_sink_by( $arrayRef, $value )
+=item The B<pacmd help> paser
 
-=item get_source_by( [qw/properties subpropertykey/], $value )
+It generates appropriate methods and function signatures for the different object types that this module provides. This determines what the objects can do.
 
-=back
+The result of the parsing is accessable by the B<__pacmd_help> function.
 
-Takes an arrayref to establish the depth and location to check against, and a single key.
+=item B<pacmd info> parser
 
-=over 4
+It provides the data that is used to initialize the appropriate objects for your system, and further provides the data returned with the L<Commands/LISTING> commands.
 
-=item get_sink_by_index( $idx )
-
-=item get_source_by_index( $idx )
+The result of this parsing is stored in the B<info> method.
 
 =back
 
-Takes a simple index (integer)
-
-=over 4
-
-=item sources
-
-=item sinks
-
-=item defaults
-
-=back
-
-Two attributes that store HashRefs to the Source Objects and Sink Objects, indexed by the PulseAudio B<index> of the source or sink.
+This module provides all of the attributes and the guts for L<PulseAudio>.
 
