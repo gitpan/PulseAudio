@@ -1,4 +1,10 @@
 blib*
+MANIFEST
+MYMETA*
+META*
+inc/
+*.bak
+*.swp
 Makefile
 Makefile.old
 Build

@@ -1,5 +1,6 @@
+.gitignore
 Changes
-ignore.txt
+doc/Commands.pod
 inc/Module/AutoInstall.pm
 inc/Module/Install.pm
 inc/Module/Install/AutoInstall.pm
@@ -7,7 +8,6 @@ inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Include.pm
-inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
@@ -16,17 +16,17 @@ lib/PulseAudio/Backend/Utilities.pm
 lib/PulseAudio/Card.pm
 lib/PulseAudio/Client.pm
 lib/PulseAudio/Module.pm
-lib/PulseAudio/Roles/CLI.pm
+lib/PulseAudio/Roles/Object.pm
 lib/PulseAudio/Sample.pm
 lib/PulseAudio/Sink.pm
 lib/PulseAudio/SinkInput.pm
 lib/PulseAudio/Source.pm
 lib/PulseAudio/SourceOutput.pm
 lib/PulseAudio/Types.pm
-Makefile.PL
 MANIFEST			This list of files
 META.yml
-pod/Commands.pod
+MYMETA.json
+MYMETA.yml
 README
 t/00-load.t
 t/10-method_list.t

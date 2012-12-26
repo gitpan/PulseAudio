@@ -9,21 +9,10 @@ use PulseAudio::Backend::Utilities;
 
 use Moose;
 
+with 'PulseAudio::Roles::Object';
+
 use PulseAudio::Types qw(PA_Index);
-
 has 'index' => ( isa => PA_Index, is => 'ro', required => 1 );
-
-has '_dump' => (
-	isa        => 'HashRef'
-	, is       => 'ro'
-	, required => 1
-	, init_arg => 'dump'
-	, traits   => ['Hash']
-
-	, handles  => {
-		'get' => 'get'
-	}
-);
 
 foreach my $cmd ( @{_commands()} ) {
 	__PACKAGE__->meta->add_method( $cmd->{alias} => $cmd->{sub} );
@@ -36,10 +25,17 @@ sub _commands {
 sub exec {
 	my ( $self, $prog, @args ) = @_; 
 	local $ENV{PATH} = undef;
+	my @env_args = grep defined, (
+		(
+			$self->server->_has_pulse_server
+			? sprintf("PULSE_SERVER=%s", $self->server->pulse_server)
+			: undef
+		)
+		, sprintf("PULSE_SINK=%s", $self->index)
+	);
 	system(
 		'/usr/bin/env'
-		, '-'
-		, sprintf("PULSE_SERVER=%s PULSE_SOURCE=%s", $self->pulse_server, $self->index)
+		, @env_args
 		, $prog
 		, @args
 	);

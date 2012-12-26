@@ -8,12 +8,33 @@ use v5.10;
 with 'PulseAudio::Backend::Utilities';
 
 has 'pulse_server' => (
-	isa => 'Maybe[Str]'
-	, is => 'ro'
-	, required => 0
+	isa         => 'Str'
+	, is        => 'ro'
+	, required  => 0
+	, predicate => '_has_pulse_server'
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
+
+sub exec {
+	my ( $self, $hash ) = @_; 
+	local $ENV{PATH} = undef;
+	my @env_args = grep defined, (
+		(
+			$self->_has_pulse_server
+			? sprintf("PULSE_SERVER=%s", $self->pulse_server)
+			: undef
+		)
+		, sprintf("PULSE_SINK=%s", $hash->{sink}->index)
+		, sprintf("PULSE_SOURCE=%s", $hash->{source}->index)
+	);
+	system(
+		'/usr/bin/env'
+		, @env_args
+		, $hash->{prog}
+		, @{ $hash->{args} }
+	);
+}
 
 __PACKAGE__->meta->make_immutable;
 
@@ -48,7 +69,14 @@ This module provides an object oriented interface into the Pulse configuration L
   $sink->set_sink_volume('50%');
   
 	# Execute VLC with the B<PULSE_SINK> environmental variable set the sink's index.
-	$sink->exec( vlc );
+	$sink->exec( '/usr/bin/vlc' );
+
+	$pa->exec(
+		sink => $sink
+		, source => $source
+		, prog => '/usr/bin/vlc'
+		, args => ['foo.mp3']
+	);
 
 	# Set the sinks's volume
 	$sink->set_sink_volume( 0x10000 ); # Sets volume to max;
@@ -78,7 +106,7 @@ The get_by methods take an array ref and a value and return the first object. Th
 
 =back
 
-Retreiver the default.
+Retreive the default.
 
 =over 4
 
@@ -112,7 +140,7 @@ Return the specific requested object by unique id (index or name in the case of 
 
 =head1 SEE ALSO
 
-B<DO READ>: L<Commands> (pod/Commands.pod)
+B<DO READ>: L<Commands> (doc/Commands.pod)
 
 =over 4
 

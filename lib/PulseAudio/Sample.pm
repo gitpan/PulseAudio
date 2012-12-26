@@ -8,6 +8,8 @@ use PulseAudio::Backend::Utilities;
 
 use Moose;
 
+with 'PulseAudio::Roles::Object';
+
 use PulseAudio::Types qw(PA_Index PA_Name);
 
 has 'name'  => ( isa => PA_Name, is => 'ro', required => 1 );
@@ -19,18 +21,6 @@ has 'index' => (
 	, default => sub {
 		my $self = shift;
 		return $self->get('index')
-	}
-);
-
-has '_dump' => (
-	isa        => 'HashRef'
-	, is       => 'ro'
-	, required => 1
-	, init_arg => 'dump'
-	, traits   => ['Hash']
-
-	, handles  => {
-		'get' => 'get'
 	}
 );
 
