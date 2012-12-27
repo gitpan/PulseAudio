@@ -1,5 +1,8 @@
 Revision history for PulseAudio
 
+0.05    12-27-2012
+				Fixed novice mistakes brought to light by SLAVEN (RT#82267)
+
 0.04		12-26-2012
 				updated exec commands to use fork-exec
 				fixed a few pod errors and pod links

@@ -14,7 +14,7 @@ has 'pulse_server' => (
 	, predicate => '_has_pulse_server'
 );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub exec {
 	my ( $self, $hash ) = @_; 
