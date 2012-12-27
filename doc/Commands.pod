@@ -8,7 +8,7 @@ Here is a breakdown of the functionality of B<pacmd(1)>.
 
 =head1 Description
 
-PulseAudio provides a CLI interface called B<pacmd>. This lists the pacmd commands indexed by functionality. Because L<PulseAudio> provides an object oriented interface to Pulse Audio, you needn't specify the B<index> argument in any of these: these methods are called on the respective objects which hold the index (or in the case of L<PulseAudio::Module> name) information.
+PulseAudio provides a CLI interface called B<pacmd>. This lists the pacmd commands indexed by functionality. Because L<PulseAudio> provides an object oriented interface to Pulse Audio, you needn't specify the B<index> argument in any of these: these methods are called on the respective objects which hold the index (or in the case of L<PulseAudio::Module> 'name') information.
 
 =head2 L<PulseAudio::Backend::Utilties> functionality
 

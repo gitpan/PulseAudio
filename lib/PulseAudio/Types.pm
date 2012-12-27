@@ -107,4 +107,9 @@ Takes an int, or an object that has an B<index> attribute (like
 L<PulseAudio::Sink> and L<PulseAudio::Source>) resolving to the index stored in
 the attribute.
 
+=item PA_Name
+
+Takes an str, or an object that has an B<name> attribute (like
+L<PulseAudio::Samples>) resolving to the index stored in the attribute.
+
 =back

@@ -391,22 +391,26 @@ sub _commands {
 
 sub __generate_get_by_method {
 	my ($name, $attr) = @_;
+	
+	my $method_name = sprintf( 'get_%s_by', $name );
 
+	## This gets invoked like $pa->get_sink_by( [name] => 'foo' );
+	## Should permit $pa->get_sink_by( [name] => 'foo', [bar] => 'baz' );
 	__PACKAGE__->meta->add_method(
-		sprintf( 'get_%s_by', $name )
+		$method_name
 		, sub {
-			my ( $self, $loc, $value ) = @_;
-			foreach my $obj ( values %{$self->$attr} ) {
-				my $v;
-				$v = $obj->_dump;
-				$v = $v->{$_} for @$loc;
-				return $obj if $v ~~ $value;
+			my $self = shift;
+			OBJ: foreach my $obj ( values %{$self->$attr} ) {
+				my @args = @_;
+				while ( my ( $loc, $value ) = splice ( @args, 0, 2 ) ) {
+					my $v;
+					$v = $obj->_dump;
+					$v = $v->{$_} for @$loc;
+					next OBJ unless $v ~~ $value;
+				}
+				return $obj;
 			}
-			Carp::croak sprintf(
-				"No source found matching query '%s' for '%s'\n"
-				, (join '/', @$loc)
-				, $value
-			);
+			Carp::croak "No object found in call to $method_name\n";
 		}
 	);
 

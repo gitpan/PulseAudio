@@ -14,11 +14,12 @@ has 'pulse_server' => (
 	, predicate => '_has_pulse_server'
 );
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 sub exec {
 	my ( $self, $hash ) = @_; 
 	local $ENV{PATH} = undef;
+
 	my @env_args = grep defined, (
 		(
 			$self->_has_pulse_server
@@ -28,12 +29,17 @@ sub exec {
 		, sprintf("PULSE_SINK=%s", $hash->{sink}->index)
 		, sprintf("PULSE_SOURCE=%s", $hash->{source}->index)
 	);
-	system(
-		'/usr/bin/env'
-		, @env_args
-		, $hash->{prog}
-		, @{ $hash->{args} }
-	);
+	
+	my $pid = fork;
+	if ( $pid == 0 ) {
+		system(
+			'/usr/bin/env'
+			, @env_args
+			, $hash->{prog}
+			, @{ $hash->{args}//[] }
+		);
+	}
+
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -56,53 +62,63 @@ L<PulseAudio::Source>.
 This module provides an object oriented interface into the Pulse configuration L<pacmd>.
 
 	use PulseAudio;
-	my $pa = PulseAudio->new;
+	$pa = PulseAudio->new;
+	
+	$pa = PulseAudio->new( pulse_server => '192.168.1.102' );
+	
+	## Return the first sink where {properties}{device.bus_path} eq pci-0000:00:1b.0
+	$sink = $pa->get_sink_by( ['properties', 'device.bus_path'] => 'pci-0000:00:1b.0' )
 
-	my $pa = PulseAudio->new( pulse_server => '192.168.1.102' );
-
-	## We because the absolute location of the key is {properties}{device.bus_path}
-	my $sink = $pa->get_sinks_by( ['properties', 'device.bus_path'], 'pci-0000:00:1b.0' )
-  $sink = $pa->get_sink_by_index(5);
-  
-  $sink = $pa->get_sink_by([qw/properties device.bus_path/], q[pci-0000:00:1b.0] );
-  
-  $sink->set_sink_volume('50%');
-  
+	## But alas, sources have monitors and generic sound interfaces at the same bus_path!
+	$sink = $pa->get_sink_by(
+		['properties', 'device.bus_path'] => 'pci-0000:00:1b.0'
+		, ['properties', 'device.class']  => 'sound'
+	)
+	
+	$sink = $pa->get_sink_by_index(5);
+	
+	$sink->set_sink_volume('50%');
+	
 	# Execute VLC with the B<PULSE_SINK> environmental variable set the sink's index.
 	$sink->exec( '/usr/bin/vlc' );
-
+	
+	## Perhaps make a Skype conference call using a specific hardware conf?
 	$pa->exec(
-		sink => $sink
+		sink     => $sink
 		, source => $source
-		, prog => '/usr/bin/vlc'
-		, args => ['foo.mp3']
+		, prog   => '/usr/bin/skype'
+		, args   => ['--callto','btrlistener021']
 	);
-
+	
 	# Set the sinks's volume
 	$sink->set_sink_volume( 0x10000 ); # Sets volume to max;
 	$sink->set_sink_volume( 'MAX' ); # Sets volume to max;
 
 =head1 METHODS
 
-The get_by methods take an array ref and a value and return the first object. The array-ref corresponds to the depth and location of the value to check against. See the L<SYNOPSIS> for an example.
+The get_by methods take alist of array refs a value and return the first object
+that matches. The array-ref corresponds to the depth and location of the value
+to check against. For more selectivity, add more than key value pairs; see the
+L<SYNOPSIS> for an example. Interally, smart-match is used -- feel free to send
+regex $values.
 
 =over 4
 
-=item get_card_by( $arrayRef, $value )
+=item get_card_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_sink_by( $arrayRef, $value )
+=item get_sink_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_source_by( $arrayRef, $value )
+=item get_source_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_source_output_by( $arrayRef, $value )
+=item get_source_output_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_sink_input_by( $arrayRef, $value )
+=item get_sink_input_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_sample_by( $arrayRef, $value )
+=item get_sample_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_client_by( $arrayRef, $value )
+=item get_client_by( $arrayRef, $value [, $arrayRef, $value]* )
 
-=item get_module_by( $arrayRef, $value )
+=item get_module_by( $arrayRef, $value [, $arrayRef, $value]* )
 
 =back
 
@@ -116,7 +132,8 @@ Retreive the default.
 
 =back
 
-Return the specific requested object by unique id (index or name in the case of Samples).
+Return the specific requested object by unique id 'index' (or name in the case
+of L<PulseAudio::Samples>).
 
 =over 4
 
@@ -206,5 +223,3 @@ See http://dev.perl.org/licenses/ for more information.
 
 
 =cut
-
-1; # End of PulseAudio

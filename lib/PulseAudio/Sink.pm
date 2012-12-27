@@ -33,12 +33,17 @@ sub exec {
 		)
 		, sprintf("PULSE_SINK=%s", $self->index)
 	);
-	system(
-		'/usr/bin/env'
-		, @env_args
-		, $prog
-		, @args
-	);
+	
+	my $pid = fork;
+	if ( $pid == 0 ) {
+		system(
+			'/usr/bin/env'
+			, @env_args
+			, $prog
+			, @args
+		);
+	}
+
 }
 
 __PACKAGE__->meta->make_immutable;

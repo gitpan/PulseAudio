@@ -1,5 +1,10 @@
 Revision history for PulseAudio
 
+0.04		12-26-2012
+				updated exec commands to use fork-exec
+				fixed a few pod errors and pod links
+				added additional selectivity in get_$name_by & documented it
+
 0.03		12-25-2012
 				fixed the exec commands
 				attempted to fix pod by renaming pod/ to doc/

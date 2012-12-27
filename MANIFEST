@@ -1,4 +1,3 @@
-.gitignore
 Changes
 doc/Commands.pod
 inc/Module/AutoInstall.pm
@@ -27,6 +26,7 @@ MANIFEST			This list of files
 META.yml
 MYMETA.json
 MYMETA.yml
+pm_to_blib
 README
 t/00-load.t
 t/10-method_list.t
