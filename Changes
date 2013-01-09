@@ -1,5 +1,8 @@
 Revision history for PulseAudio
 
+0.06    12.28-2012
+        Updated Makefile.PL to `require_external_bin`
+
 0.05    12-27-2012
 				Fixed novice mistakes brought to light by SLAVEN (RT#82267)
 

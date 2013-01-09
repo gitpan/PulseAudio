@@ -13,6 +13,9 @@ requires 'MooseX::Types';
 requires 'constant';
 requires 'autodie';
 
+requires_external_bin 'pacmd';
+requires_external_bin 'env';
+
 repository 'git://github.com/EvanCarroll/perl-pulseaudio.git';
 homepage 'https://github.com/EvanCarroll/perl-pulseaudio';
 
