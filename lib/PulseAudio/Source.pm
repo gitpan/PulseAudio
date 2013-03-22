@@ -23,7 +23,22 @@ sub _commands {
 }
 
 sub exec {
-	my ( $self, $prog, @args ) = @_; 
+	my $self = shift;
+
+	my ( $prog, @args );	
+	if ( ref $_[0] eq 'HASH' ) {
+		my $attr = shift;
+		$prog = $attr->{prog};
+		@args = @{$attr->{args}};
+
+		Carp::croak "No 'prog' supplied in hash arg to exec\n"
+			unless $prog
+		;
+	}
+	else {
+		( $prog, @args ) = @_;
+	}
+	
 	local $ENV{PATH} = undef;
 	my @env_args = grep defined, (
 		(

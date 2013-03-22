@@ -435,21 +435,21 @@ PulseAudio::Backend::Utilities - A backend module for the PulseAudio
 
 =head1 DESCRIPTION
 
-This module serves to provide the functionality of the backend utilities. It has two parsers.
+This module serves to provide the functionality of the backend utilities. It has two parsers:
 
 =over 4
 
-=item The B<pacmd help> paser
+=item B<pacmd help>
 
 It generates appropriate methods and function signatures for the different object types that this module provides. This determines what the objects can do.
 
 The result of the parsing is accessable by the B<__pacmd_help> function.
 
-=item B<pacmd info> parser
+=item B<pacmd info>
 
 It provides the data that is used to initialize the appropriate objects for your system, and further provides the data returned with the L<Commands/LISTING> commands.
 
-The result of this parsing is stored in the B<info> method.
+The result of this parsing is stored in the B<info> attribute.
 
 =back
 

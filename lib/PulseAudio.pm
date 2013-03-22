@@ -14,7 +14,7 @@ has 'pulse_server' => (
 	, predicate => '_has_pulse_server'
 );
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub exec {
 	my ( $self, $hash ) = @_; 
@@ -80,7 +80,8 @@ This module provides an object oriented interface into the Pulse configuration L
 	$sink->set_sink_volume('50%');
 	
 	# Execute VLC with the B<PULSE_SINK> environmental variable set the sink's index.
-	$sink->exec( '/usr/bin/vlc' );
+	$sink->exec( '/usr/bin/vlc', 'arg1' );
+	$sink->exec({ prog => '/usr/bin/vlc', args => ['arg1'] });
 	
 	## Perhaps make a Skype conference call using a specific hardware conf?
 	$pa->exec(
